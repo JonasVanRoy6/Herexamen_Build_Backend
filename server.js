@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const Order = require('./models/Order'); // Importeer het Order-model
 
+
 // Maak een Express-app
 const app = express();
 app.use(cors());
@@ -41,6 +42,69 @@ app.get('/api/orders', async (req, res) => {
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Fout bij het ophalen van de bestellingen', error });
+  }
+});
+
+// API-endpoint om een order als verzonden te markeren
+app.post('/api/orders/markAsShipped', async (req, res) => {
+  const { orderId } = req.body;
+
+  try {
+    // Zoek de order en update de status
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order niet gevonden' });
+    }
+
+    order.status = 'shipped'; // Update de status naar "shipped"
+    await order.save();
+
+    res.status(200).json({ message: 'Order gemarkeerd als verzonden', order });
+  } catch (error) {
+    console.error('Fout bij het markeren als verzonden:', error);
+    res.status(500).json({ message: 'Er is een fout opgetreden', error });
+  }
+});
+
+// API-endpoint om een order als geannuleerd te markeren
+app.post('/api/orders/markAsCancelled', async (req, res) => {
+  const { orderId } = req.body;
+
+  try {
+    // Zoek de order en update de status
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order niet gevonden' });
+    }
+
+    order.status = 'cancelled'; // Update de status naar "cancelled"
+    await order.save();
+
+    res.status(200).json({ message: 'Order gemarkeerd als geannuleerd', order });
+  } catch (error) {
+    console.error('Fout bij het markeren als geannuleerd:', error);
+    res.status(500).json({ message: 'Er is een fout opgetreden', error });
+  }
+});
+
+// API-endpoint om een orderstatus bij te werken
+app.post('/api/orders/updateStatus', async (req, res) => {
+  const { orderId, status } = req.body;
+
+  try {
+    // Zoek de order en update de status
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order niet gevonden' });
+    }
+
+    order.status = status; // Update de status naar "shipped" of "cancelled"
+    await order.save();
+
+    res.status(200).json({ message: `Order gemarkeerd als ${status}`, order });
+  } catch (error) {
+    console.error('Fout bij het bijwerken van de status:', error);
+    res.status(500).json({ message: 'Er is een fout opgetreden', error });
   }
 });
 
