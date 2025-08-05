@@ -21,17 +21,33 @@ db.once('open', () => {
 // API-endpoint om een bestelling te plaatsen
 app.post('/api/orders', async (req, res) => {
   try {
-    const { flavors, topping, straw } = req.body;
+    console.log('Ontvangen data:', req.body);
 
-    // Controleer of de flavors-array correct is
-    console.log('Ontvangen flavors:', flavors);
+    const { flavors, topping, straw, customer } = req.body;
 
-    const order = new Order({ flavors, topping, straw });
+    if (!flavors || !topping || !straw || !customer || !customer.name || !customer.address) {
+      return res.status(400).json({ message: 'Alle velden zijn verplicht' });
+    }
+
+    const order = new Order({
+      flavors,
+      topping,
+      straw,
+      customer: {
+        name: customer.name,
+        address: {
+          street: customer.address.street,
+          city: customer.address.city,
+        },
+      },
+      status: 'pending',
+    });
+
     await order.save();
     res.status(201).json({ message: 'Bestelling geplaatst', order });
   } catch (error) {
     console.error('Fout bij het plaatsen van de bestelling:', error);
-    res.status(500).json({ message: 'Fout bij het plaatsen van de bestelling', error });
+    res.status(500).json({ message: 'Er is een fout opgetreden', error });
   }
 });
 
@@ -39,6 +55,7 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', async (req, res) => {
   try {
     const orders = await Order.find();
+    console.log('Bestellingen:', orders); // Controleer de data
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Fout bij het ophalen van de bestellingen', error });
@@ -104,6 +121,22 @@ app.post('/api/orders/updateStatus', async (req, res) => {
     res.status(200).json({ message: `Order gemarkeerd als ${status}`, order });
   } catch (error) {
     console.error('Fout bij het bijwerken van de status:', error);
+    res.status(500).json({ message: 'Er is een fout opgetreden', error });
+  }
+});
+
+// API-endpoint om een bestelling te verwijderen
+app.delete('/api/orders/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findByIdAndDelete(id);
+    if (!order) {
+      return res.status(404).json({ message: 'Bestelling niet gevonden' });
+    }
+    res.status(200).json({ message: 'Bestelling succesvol verwijderd' });
+  } catch (error) {
+    console.error('Fout bij het verwijderen van de bestelling:', error);
     res.status(500).json({ message: 'Er is een fout opgetreden', error });
   }
 });
