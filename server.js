@@ -21,17 +21,21 @@ db.once('open', () => {
 // API-endpoint om een bestelling te plaatsen
 app.post('/api/orders', async (req, res) => {
   try {
-    console.log('Ontvangen data:', req.body);
+    const { flavors, topping, straw, customer, price } = req.body;
 
-    const { flavors, topping, straw, customer } = req.body;
-
-    if (!flavors || !topping || !straw || !customer || !customer.name || !customer.address) {
+    // Controleer of alle verplichte velden aanwezig zijn
+    if (!flavors || !straw || !customer || !customer.name || !customer.address || price === undefined) {
       return res.status(400).json({ message: 'Alle velden zijn verplicht' });
+    }
+
+    // Sta een lege topping toe
+    if (topping === undefined) {
+      return res.status(400).json({ message: 'Topping is verplicht' });
     }
 
     const order = new Order({
       flavors,
-      topping,
+      topping, // Sla de topping op (kan leeg zijn)
       straw,
       customer: {
         name: customer.name,
@@ -40,6 +44,7 @@ app.post('/api/orders', async (req, res) => {
           city: customer.address.city,
         },
       },
+      price, // Sla de prijs op
       status: 'pending',
     });
 
@@ -55,8 +60,8 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', async (req, res) => {
   try {
     const orders = await Order.find();
-    console.log('Bestellingen:', orders); // Controleer de data
-    res.status(200).json(orders);
+    console.log('Bestellingen:', orders); // Controleer de data in de console
+    res.status(200).json(orders); // Stuur de bestellingen inclusief prijs naar de frontend
   } catch (error) {
     res.status(500).json({ message: 'Fout bij het ophalen van de bestellingen', error });
   }

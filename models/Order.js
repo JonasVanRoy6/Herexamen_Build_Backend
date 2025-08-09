@@ -1,21 +1,17 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  flavors: [
-    {
-      name: { type: String, required: true },
-      color: { type: String, required: true },
-    },
-  ],
-  topping: { type: String, required: true },
-  straw: { type: String, required: true },
+  flavors: [{ name: String, color: String }],
+  topping: { type: String, default: "" }, // Sta een lege topping toe
+  straw: String,
   customer: {
-    name: { type: String, required: true },
+    name: String,
     address: {
-      street: { type: String, required: true },
-      city: { type: String, required: true },
+      street: String,
+      city: String,
     },
   },
+  price: Number, // Voeg het prijsveld toe
   status: { type: String, default: 'pending' },
   date: { type: Date, default: Date.now },
 });
