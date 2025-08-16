@@ -1,3 +1,5 @@
+require('dotenv').config(); // Laad de environment variables uit .env
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -11,7 +13,7 @@ app.use(cors());
 app.use(express.json()); // Zorg ervoor dat je JSON-gegevens kunt verwerken
 
 // Verbind met MongoDB
-mongoose.connect('mongodb://localhost:27017/icecream_orders');
+mongoose.connect(process.env.MONGODB_URI);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB-verbinding mislukt:'));
 db.once('open', () => {
