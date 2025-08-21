@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
       city: String,
     },
   },
-  price: Number, // Voeg het prijsveld toe
+  price: Number, 
   status: { type: String, default: 'pending' },
   date: { type: Date, default: Date.now },
 });

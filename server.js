@@ -37,7 +37,7 @@ app.post('/api/orders', async (req, res) => {
 
     const order = new Order({
       flavors,
-      topping, // Sla de topping op (kan leeg zijn)
+      topping, 
       straw,
       customer: {
         name: customer.name,
@@ -46,7 +46,7 @@ app.post('/api/orders', async (req, res) => {
           city: customer.address.city,
         },
       },
-      price, // Sla de prijs op
+      price, 
       status: 'pending',
     });
 
@@ -62,7 +62,7 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', async (req, res) => {
   try {
     const orders = await Order.find();
-    console.log('Bestellingen:', orders); // Controleer de data in de console
+    console.log('Bestellingen:', orders); 
     res.status(200).json(orders); // Stuur de bestellingen inclusief prijs naar de frontend
   } catch (error) {
     res.status(500).json({ message: 'Fout bij het ophalen van de bestellingen', error });
@@ -80,7 +80,7 @@ app.post('/api/orders/markAsShipped', async (req, res) => {
       return res.status(404).json({ message: 'Order niet gevonden' });
     }
 
-    order.status = 'shipped'; // Update de status naar "shipped"
+    order.status = 'shipped'; 
     await order.save();
 
     res.status(200).json({ message: 'Order gemarkeerd als verzonden', order });
